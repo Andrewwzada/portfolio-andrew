@@ -1,0 +1,4 @@
+import { useEffect, useState } from 'react';
+import { AnimatePresence,motion,useReducedMotion } from 'framer-motion';
+import type { Lang } from '../data/profile';
+export default function BootIntro({lang}:{lang:Lang}){const reduced=useReducedMotion();const [visible,setVisible]=useState(()=>!sessionStorage.getItem('andrew-intro'));useEffect(()=>{sessionStorage.setItem('andrew-intro','1');const id=setTimeout(()=>setVisible(false),1100);return()=>clearTimeout(id)},[]);return <AnimatePresence>{visible&&!reduced&&<motion.div className="boot-intro" aria-hidden="true" initial={{opacity:1}} exit={{opacity:0,y:-16}} transition={{duration:.45}}><span className="boot-monogram">ANF<span>.</span></span><strong>Andrew Nicolas Farrapo</strong><small>{lang==='pt'?'Conectando ideias e tecnologia':'Connecting ideas and technology'}</small><span className="boot-line"/></motion.div>}</AnimatePresence>}
