@@ -1,0 +1,45 @@
+import {test,expect} from '@playwright/test';
+
+test('contact validates, waits for confirmation, retains failures and resets success',async({page})=>{
+  await page.goto('/');
+  const form=page.locator('.contact-form');
+  await form.scrollIntoViewIfNeeded();
+  const button=form.getByRole('button',{name:'Enviar mensagem'});
+  let requests=0;
+  let confirm=false;
+  let release:()=>void=()=>{};
+  await page.route('https://api.web3forms.com/submit',async route=>{
+    requests++;
+    await new Promise<void>(resolve=>{release=resolve});
+    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({success:confirm})});
+  });
+  await button.click();
+  expect(requests).toBe(0);
+  await form.getByLabel('Seu nome').fill('Visitante');
+  await form.getByLabel('E-mail',{exact:true}).fill('invalid');
+  await form.getByLabel('Mensagem',{exact:true}).fill('Uma mensagem de teste.');
+  await button.click();
+  expect(requests).toBe(0);
+  await form.getByLabel('E-mail',{exact:true}).fill('visitor@example.com');
+  await form.getByLabel('Mensagem',{exact:true}).fill('          ');
+  await button.click();
+  expect(requests).toBe(0);
+  await form.getByLabel('Mensagem',{exact:true}).fill('Uma mensagem de teste.');
+  await button.click();
+  await expect.poll(()=>requests).toBe(1);
+  await expect(form.getByRole('button')).toHaveText('Enviando...');
+  await expect(form.getByRole('button')).toBeDisabled();
+  await expect(form.getByRole('status')).toBeEmpty();
+  release();
+  await expect(form.getByRole('status')).toContainText('Não foi possível confirmar');
+  await expect(form.getByLabel('Mensagem',{exact:true})).toHaveValue('Uma mensagem de teste.');
+  await page.getByRole('button',{name:'Switch to English'}).click();
+  await expect(form.getByRole('status')).toContainText('We could not confirm');
+  confirm=true;
+  await form.getByRole('button',{name:'Send message'}).click();
+  await expect.poll(()=>requests).toBe(2);
+  release();
+  await expect(form.getByRole('status')).toContainText('Message received successfully');
+  for(const id of ['contact-name','contact-email','contact-message'])await expect(page.locator(`#${id}`)).toHaveValue('');
+  await expect(form.getByRole('button',{name:'Send message'})).toBeEnabled();
+});

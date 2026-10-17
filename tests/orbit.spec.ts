@@ -1,10 +1,61 @@
 import { test, expect } from '@playwright/test';
-test('technology details work with keyboard and keep both languages',async({page})=>{
- await page.goto('/');await page.locator('#skills').scrollIntoViewIfNeeded();
- const selector=page.locator('#skills .tech-selector');
- for(const name of ['Python','JavaScript','HTML5','CSS3','MySQL','NoSQL','Linux','Windows Server','Git','GitHub','PowerShell','MikroTik','UniFi'])await expect(selector.getByRole('button',{name,exact:true})).toBeVisible();
- await selector.getByRole('button',{name:'MikroTik',exact:true}).click();
- const dialog=page.getByRole('dialog',{name:'MikroTik',exact:true});await expect(dialog).toContainText('roteamento');await expect(dialog.getByRole('button',{name:'Fechar competência'})).toBeFocused();await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);await expect(selector.getByRole('button',{name:'MikroTik',exact:true})).toBeFocused();
- await page.getByRole('button',{name:'Switch to English'}).click();await selector.getByRole('button',{name:'UniFi',exact:true}).click();await expect(page.getByRole('dialog',{name:'UniFi',exact:true})).toContainText('Enterprise Wi-Fi');
+test('lab replaces second globe, supports keyboard and translates details', async ({ page }) => {
+  await page.goto('/');
+  const lab = page.locator('.infrastructure-lab');
+  await lab.scrollIntoViewIfNeeded();
+  await expect(page.locator('.scene-globe')).toHaveCount(1);
+  await expect(page.locator('#skills canvas')).toHaveCount(0);
+  const firewall = lab.getByRole('button', { name: 'Firewall / VPN', exact: true });
+  await firewall.focus();
+  await page.keyboard.press('Enter');
+  await expect(firewall).toHaveAttribute('aria-pressed', 'true');
+  await expect(lab.locator('#lab-detail')).toContainText('WireGuard');
+  await expect(lab.locator('#lab-detail')).toContainText('Roteamento');
+  await page.getByRole('button', { name: 'Switch to English' }).click();
+  await expect(lab.locator('#lab-detail')).toContainText('Routing');
+  await lab.getByRole('button', { name: 'Wi-Fi / UniFi', exact: true }).click();
+  await expect(lab.locator('#lab-detail')).toContainText('Enterprise Wi-Fi');
 });
-test('portrait is the edited local image',async({page})=>{await page.goto('/');const photo=page.locator('#about img');await expect(photo).toHaveAttribute('src',/andrew-professional.png$/);const response=await page.request.get((await photo.getAttribute('src'))!);expect(response.ok()).toBeTruthy()});
+test('new transparent portrait is served', async ({ page }) => {
+  await page.goto('/');
+  const photo = page.locator('#about img');
+  await expect(photo).toHaveAttribute('src', /Retrato%20Recortado%20com%20Bra%C3%A7os%20Cruzados%20\(1\)\.png$/);
+  const response = await page.request.get((await photo.getAttribute('src'))!);
+  expect(response.ok()).toBeTruthy();
+});
+test('all twelve soft skills remain in six expandable groups', async ({ page }) => {
+  await page.goto('/');
+  const section = page.locator('#soft');
+  const buttons = section.getByRole('button', { expanded: false });
+  await expect(buttons).toHaveCount(6);
+  for (let i = 0; i < 6; i++) await buttons.first().click();
+  await expect(section.locator('.soft-detail')).toHaveCount(12);
+  await expect(section).toContainText('Investigação técnica');
+  const first = section.getByRole('button', { expanded: true }).first();
+  await first.click();
+  await expect(section.locator('.soft-detail')).toHaveCount(10);
+});
+test('terminal history, completion, education and navigation use real data', async ({ page }) => {
+  await page.goto('/');
+  const input = page.getByRole('textbox', { name: 'Comando do terminal' });
+  await input.fill('edu');
+  await input.press('Tab');
+  await expect(input).toHaveValue('education');
+  await input.press('Enter');
+  await expect(page.getByRole('log')).toContainText('Engenharia de Software — UNINTER');
+  await expect(page.getByRole('log').getByRole('link')).toHaveAttribute('href', '#education');
+  await input.press('ArrowUp');
+  await expect(input).toHaveValue('education');
+  await input.press('ArrowDown');
+  await expect(input).toHaveValue('');
+  await input.fill('clear');
+  await input.press('Enter');
+  await expect(page.getByRole('log')).toBeEmpty();
+});
+test('showcase has confirmed project with no invented repository link', async ({ page }) => {
+  await page.goto('/');
+  const project = page.locator('#projects');
+  await expect(project.getByRole('heading', { name: 'Portfólio interativo' })).toBeVisible();
+  await expect(project.locator('.project-card')).toHaveCount(1);
+  await expect(project.getByRole('link', { name: 'Explorar este projeto' })).toHaveAttribute('href', '#home');
+});

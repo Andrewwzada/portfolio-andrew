@@ -4,7 +4,7 @@ Aplicação React 19 + TypeScript + Vite, com Tailwind CSS 4, Framer Motion, Thr
 
 ## Executar
 
-Na pasta existente `C:\Users\Andrew\Desktop\portfolio-andrew`, abra um terminal com Node.js 22 LTS (22.12 ou posterior) e npm:
+Na pasta existente `C:\Users\Andrew\Desktop\portfolio-andrew-1`, abra um terminal com Node.js 22 LTS (22.12 ou posterior) e npm:
 
 ```bash
 npm install
@@ -31,7 +31,7 @@ npm run preview
 - Contato: `profile.contactEndpoint` fica vazio e o envio desabilitado. Configure um endpoint HTTPS real que aceite POST multipart e retorne HTTP 2xx apenas após aceitar a mensagem. O código apresenta erro em falhas e só apresenta sucesso após resposta positiva. Configure validação, antispam, CORS e política de dados no serviço escolhido. Não coloque segredos no frontend.
 - `src/data/certificates.ts`: metadados e caminhos dos certificados; não traduza títulos oficiais dos documentos.
 - Novas experiências podem ser adicionadas ao array `experience`.
-- Projetos: substitua o conteúdo da seção `projects` em `src/App.tsx` por componentes com dados reais quando estiverem autorizados para publicação. Nenhum projeto fictício foi cadastrado.
+- Projetos: adicione entradas reais a `src/data/projects.ts`, com nome, descrição e funcionalidades nos dois idiomas. `repository`, `demo` e `image` são opcionais; botões aparecem apenas quando suas URLs forem informadas. O portfólio desta pasta é o único projeto confirmado. O link geral do GitHub não é apresentado como repositório específico.
 
 ## Certificados e preservação
 
@@ -48,7 +48,7 @@ Auditoria documental em `CERTIFICADOS.md`. Treinamentos JNCIA e Microsoft não s
 
 ## Animações, acessibilidade e desempenho
 
-Esfera e caixa são geometria procedural; não dependem de modelos externos. O ponto de interrogação usa a fonte local embutida do Three.js, sem downloads. Os componentes 3D e PDF.js são carregados em chunks separados. Os canvas 3D são montados somente perto da área visível; DPR limitado a 1,5. PDFs aguardam proximidade da tela para renderizar a primeira página. O site inclui fallback visual para WebGL indisponível, animações reduzidas com `prefers-reduced-motion`, navegação por teclado, modal com retorno e contenção de foco, Escape para fechar, abas com setas e formulário rotulado. A órbita pausa com hover ou foco. O terminal usa uma lista fechada de comandos e nunca executa comandos do sistema.
+O globo usa geometria procedural, com rotação, interação, conexões, ícones flutuantes e partículas reduzidas no celular. O laboratório utiliza diagrama SVG e controles HTML, sem um segundo canvas WebGL. A antiga caixa conceitual foi substituída pela vitrine de projetos. Os componentes 3D e PDF.js são carregados em chunks separados. Os canvas 3D são montados somente perto da área visível; DPR limitado a 1,5. PDFs aguardam proximidade da tela para renderizar a primeira página. O site inclui fallback visual para WebGL indisponível, animações reduzidas com `prefers-reduced-motion`, navegação por teclado, modal com retorno e contenção de foco, Escape para fechar, abas com setas e formulário rotulado. A órbita pausa com hover ou foco. O terminal usa uma lista fechada de comandos e nunca executa comandos do sistema.
 
 Fontes do sistema evitam requisições externas. Para futuros arquivos de fotografia, prefira WebP/AVIF com dimensões adequadas. A galeria mantém as imagens dos certificados originais.
 
@@ -61,7 +61,14 @@ npm run test:e2e
 
 A suíte cobre desktop, celular e preferência de movimento reduzido: largura da página, idioma, terminal, filtros, modal, integridade da URL PDF e navegação das abas por teclado.
 
-**Validação neste ambiente:** os dez originais e as cópias passaram na comparação SHA-256; a sintaxe TypeScript/TSX foi analisada com Babel. `npm install` encontrou falha de DNS ao acessar `registry.npmjs.org`, sem dependências disponíveis no cache. Por isso `npm run typecheck` e `npm run build` foram tentados, mas não puderam executar (`tsc: not found`). A suíte de navegador não foi executada. Compilação e responsividade visual precisam ser verificadas após a instalação em um ambiente com acesso ao npm. A análise de sintaxe não substitui a checagem de tipos.
+**Validação desta atualização:** os dez originais e suas cópias passaram na auditoria SHA-256. A análise de sintaxe TS/TSX/JS passou. A primeira instalação encontrou bloqueio `EPERM` ao executar o binário do esbuild; a validação completa depende da instalação das dependências e dos navegadores. Consulte `VISUAL-UPGRADE.md` para o resultado final das tentativas de build e testes. Análise de sintaxe não substitui checagem de tipos nem teste visual.
+
+## Interações adicionadas
+
+- Laboratório: sete equipamentos ilustrativos com seleção por clique, toque ou teclado; detalhes bilíngues. Nenhum endereço de cliente ou dado de ambiente real.
+- Soft Skills: seis grupos expansíveis preservam as doze competências originais.
+- Terminal: `help`, `about`, `skills`, `experience`, `education`, `certificates`, `projects`, `contact`, `clear`. Setas percorrem histórico; Tab completa prefixos únicos e permite sair do campo normalmente quando não houver correspondência única. Links levam às seções. Não executa comandos do sistema.
+- O formulário permanece desabilitado enquanto não houver endpoint real em `profile.contactEndpoint`. Não há envio funcional configurado nesta base.
 
 ## Publicação futura — somente quando autorizada
 
